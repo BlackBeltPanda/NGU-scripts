@@ -1,3 +1,7 @@
+# Disclaimer about this fork
+This fork was created by me, mostly to try and get the guffin script running in steam/kart versions. i do *not* actively update this fork, and i do *not* guarantee any scripts to work as intended. This fork is a straight up upload of my messy edited guffin script, which works for *my* goals. some experience with python is recommended, so you can have the scripts do as you please.
+I highly recommend you to make saves of you game before running any scripts, and also to use a virtualenv for your python
+
 # About
 This is a collection of functions I created for AHK and Python with the purpose of automating different aspects of the game [NGU-IDLE](https://www.kongregate.com/games/somethingggg/ngu-idle). This project first started because the built-in functions ControlClick/ControlSend in AHK did not work with the game, because of how Unity handles input. I first created replacements for these functions in AHK, but later moved over to Python because there was little reason to use AHK when the input was being sent directly via the Windows API.
 
@@ -9,11 +13,12 @@ If you're automating the game using these or any other scripts, please consider 
 
 The AHK script is unsupported and deleted, but I kept the functions here because they will work well in any Unity based browser game, where AHK's builtins fall short. 
 
+**Kartridge and steam versions do not support background clicking**
+
 ## Requirements
 * Windows 7 or later (NT >=6.1)
 * Python 3 (only tested on 3.7)
 * Tesseract OCR
-* Firefox Browser with hardware acceleration turned OFF (you have to restart the browser for it to take effect)
 * Use scientific notation in game
 * The "simple inventory shortcuts" setting must be enabled
 * The normal theme must be enabled
@@ -34,17 +39,6 @@ Change the settings in ``usersettings_example.py`` and rename it to ``usersettin
 ### Big Monitors
 If you are using a big monitor (4K, 8K) or by some reason your Windows scaling is set to something other than 100%, the scripts won't work.
 To solve this, on Firefox go to ```about:config``` and set ```layout.css.devPixelsPerPx``` to ```1.0```.
-
-### Optional
-If you're using Firefox as your main browser, you will notice that the script will steal focus each time it performs an action. To solve this you can create a specific profile that only runs the game. 
-
-1. In firefox enter ``about:profiles`` in the address field.
-2. Create a new profile and name it (NGU, for example)
-3. Go to your firefox installation folder, right click the ``firefox.exe`` file
-   and select create shortcut.
-4. Right click the shortcut and select properties.
-5. In the target field, enter ``-P YOURPROFILENAME -no-remote`` after the quotation mark. It should look like this: ``"C:\Program Files\Mozilla Firefox\firefox.exe" -P NGU -no-remote``
-6. Start firefox via the shortcut and load your NGU save.
 
 ## FAQ
 * Q: I get a ``ValueError``.
