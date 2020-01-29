@@ -1,6 +1,7 @@
 # Disclaimer about this fork
 This fork was created by me, mostly to try and get the guffin script running in steam/kart versions. i do *not* actively update this fork, and i do *not* guarantee any scripts to work as intended. This fork is a straight up upload of my messy edited guffin script, which works for *my* goals. some experience with python is recommended, so you can have the scripts do as you please.
-I highly recommend you to make saves of you game before running any scripts, and also to use a virtualenv for your python
+I highly recommend you to make saves of you game before running any scripts, and also to use a virtualenv for your python.
+The main benefit of this fork is that the backend Inputs and window classes work with proper pyautoGUI implementation.
 
 # About
 This is a collection of functions I created for AHK and Python with the purpose of automating different aspects of the game [NGU-IDLE](https://www.kongregate.com/games/somethingggg/ngu-idle). This project first started because the built-in functions ControlClick/ControlSend in AHK did not work with the game, because of how Unity handles input. I first created replacements for these functions in AHK, but later moved over to Python because there was little reason to use AHK when the input was being sent directly via the Windows API.
