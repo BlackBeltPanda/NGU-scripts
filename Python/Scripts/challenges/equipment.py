@@ -5,6 +5,7 @@ import time
 
 class Equipment(Features):
     """Contains functions for running a no equip challenge."""
+    boss = 0
 
     def speedrun(self, duration):
         """Start a speedrun.
@@ -13,7 +14,7 @@ class Equipment(Features):
         duration -- duration in minutes to run
         f -- feature object
         """
-        diggers = [2, 3, 11, 12]
+        diggers = [3, 2]
         self.nuke()
         time.sleep(2)
         self.fight()
@@ -21,15 +22,20 @@ class Equipment(Features):
         time.sleep(2)
         rb_time = self.get_rebirth_time()
         while int(rb_time.timestamp.tm_min) < duration:
-            self.gold_diggers(diggers)
             self.wandoos(True)
-            self.augments({"SM": 1}, coords.INPUT_MAX)
-            if not self.check_pixel_color(*coords.COLOR_TM_LOCKED):
-                self.blood_magic(6)
+            if not self.check_pixel_color(*coords.COLOR_BM_LOCKED) and not self.check_pixel_color(*coords.COLOR_BM_LOCKED_ALT):
+                self.blood_magic(3)
             self.nuke()
+            self.adventure(highest=True)
+            """No point in wasting energy on augments or trying to cap diggers if we don't have the time machine unlocked"""
+            if not self.check_pixel_color(*coords.COLOR_TM_LOCKED):
+                self.time_machine(coords.INPUT_MAX, magic=True)
+                self.gold_diggers(diggers)
+                self.augments({"SS": 1}, coords.INPUT_MAX)
             rb_time = self.get_rebirth_time()
         self.pit()
         self.spin()
+        boss = self.get_current_boss()
         return
 
     def start(self):
@@ -38,8 +44,12 @@ class Equipment(Features):
         If you wish to edit the length or sequence of the rebirths; change the for-loop values
         and durations in the self.speedrun(duration) calls."""
         self.set_wandoos(0)  # wandoos 98, use 1 for meh
+        self.toggle_auto_spells(number=True, drop=False, gold=True)
 
         for x in range(8):
+            """Let's not waste too much time if we can't handle 3 minute rebirths"""
+            if (x > 3 and boss < 30) or (x > 5 and boss < 37):
+                break
             self.speedrun(3)
             if not self.check_challenge():
                 return
