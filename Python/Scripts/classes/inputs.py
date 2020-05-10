@@ -24,25 +24,9 @@ class Inputs():
     
 
     def click(self, x, y, button="left", fast=False):
-        #path = r"C:\AutoIt3\AutoItX\AutoItX3.dll"
-        #autoit = windll.LoadLibrary(path)
-        """Click at pixel xy."""
-        # MOUSEMOVE event is required for game to register clicks correctly
-        #win32gui.PostMessage(window.id, wcon.WM_MOUSEHOVER, 0, lParam)
-
-        #win32gui.PostMessage(window.id, wcon.WM_MOUSEMOVE, 0, lParam)
-        #time.sleep(0.1)
         win32gui.ShowWindow(window.id, 5)
         win32gui.SetForegroundWindow(window.id)
         if (button == "left"):
-            #hwnd = autoit.AU3_WinGetHandle("NGU Idle", "")
-            #print(f"Handle is: ", hwnd)
-            #lParam = win32api.MAKELONG(x, y)
-            #win32api.PostMessage(hwnd, wcon.WM_LBUTTONDOWN, wcon.MK_LBUTTON, lParam)
-            #time.sleep(0.15)
-            #win32api.PostMessage(hwnd, wcon.WM_LBUTTONUP, wcon.MK_LBUTTON, lParam)
-            #autoit.AU3_ControlClick(hwnd, "", "")
-            #autoit.AU3_ControlClick("NGU Idle", "", "", "left", 1, x, y)
             pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)))
         
         else:
@@ -184,11 +168,8 @@ class Inputs():
         bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         *_, right, lower = bmp.getbbox()
         bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
-        contrast = ImageEnhance.Contrast(bmp)
         enhancer = ImageEnhance.Sharpness(bmp)
-        bmp = contrast.enhance(2)
         bmp = enhancer.enhance(0)
-        bmp = bmp.filter(ImageFilter.EDGE_ENHANCE)
         bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
 
         if debug:
