@@ -132,9 +132,10 @@ class Features(Navigation, Inputs):
 
     def spin(self):
         """Spin the wheel."""
-        self.menu("pit")
-        self.click(*coords.SPIN_MENU)
-        self.click(*coords.SPIN)
+        if inputs.check_pixel_color(*coords.IS_SPIN_READY):
+          self.menu("pit")
+          self.click(*coords.SPIN_MENU)
+          self.click(*coords.SPIN)
 
     def adventure(self, zone=0, highest=True, itopod=None, itopodauto=False):
         """Go to adventure zone to idle.
@@ -451,6 +452,11 @@ class Features(Navigation, Inputs):
         """Equip targeted loadout."""
         self.menu("inventory")
         self.click(*coords.LOADOUT[target])
+        
+    def activate_all_bm(self):
+      """Click activate all in BM menu."""
+      self.menu("bloodmagic")
+      self.click(*coords.BM_CAP_ALL)
 
     @deprecated(version='0.1', reason="speedrun_bloodpill is deprecated, use iron_pill() instead")
     def speedrun_bloodpill(self):
@@ -622,6 +628,11 @@ class Features(Navigation, Inputs):
         """Click deactivate all in digger menu."""
         self.menu("digger")
         self.click(*coords.DIG_DEACTIVATE_ALL)
+        
+    def activate_all_diggers(self):
+      """Click activate all in digger menu."""
+      self.menu("digger")
+      self.click(*coords.DIG_CAP_ALL)
 
     def level_diggers(self):
         """Level all diggers."""
@@ -1200,6 +1211,15 @@ class Features(Navigation, Inputs):
             return self.check_pixel_color(*coords.COLOR_WANDOOS_MAGIC_BB)
         return self.check_pixel_color(*coords.COLOR_WANDOOS_ENERGY_BB)
     
+    def get_itopod_ap_kills(self):
+        self.click(*coords.ADVENTURE_TOOLTIP)
+        count = self.ocrItopod(*coords.OCR_AP_KILL_COUNT).split(".")[0]
+        try:
+            count = int(count)
+        except ValueError:
+            print(f"couldn't convert '{count}' to int")
+        return count
+    
     def itopod_ap(self, duration):
         """Abuse an oversight in the kill counter for AP rewards for mucher higher AP/h in ITOPOD.
         If you use this method, make sure you do not retoggle idle mode in adventure in other parts
@@ -1215,25 +1235,38 @@ class Features(Navigation, Inputs):
         self.current_adventure_zone = 0
         self.menu("adventure")
         self.click(625, 500)  # click somewhere to move tooltip
-        if self.check_pixel_color(*coords.IS_IDLE):
-            self.click(*coords.ABILITY_IDLE_MODE)
+        
+        self.click(*coords.ITOPOD)
+        self.click(*coords.ITOPOD_AUTO)
+        max = self.ocrItopod(*coords.OCR_ITOPOD_END_FLOOR)
+        print (f"Max optimal floor: '{max}'")
+        try:
+            max = int(max)
+        except ValueError:
+            print(f"Couldn't convert '{max}' to int")
+        self.click(*coords.ITOPOD_START)
+        self.send_string(0)
+        self.click(*coords.ITOPOD_ENTER)
+        time.sleep(0.7)
+        
         # check if we're already in ITOPOD, otherwise enter
         if not self.itopod_tier_counts:
             for tier, floor in self.itopod_tier_map.items():
+                if (floor > max):
+                    break
                 self.click(*coords.ITOPOD)
                 self.click(*coords.ITOPOD_START)
                 self.send_string(floor)
                 # set end to 0 in case it's higher than start
                 self.click(*coords.ITOPOD_ENTER)
-                self.click(*coords.ADVENTURE_TOOLTIP)
-                count = self.remove_letters(self.ocr(*coords.OCR_AP_KILL_COUNT))
+                count = self.get_itopod_ap_kills()
                 print(f"Tier {tier}: {count}")
-                try:
-                    count = int(count)
-                except ValueError:
-                    print(f"couldn't convert '{count}' to int")
                 self.itopod_tier_counts[tier] = count
         print(self.itopod_tier_counts)
+        
+        if self.check_pixel_color(*coords.IS_IDLE):
+            self.click(*coords.ABILITY_IDLE_MODE)
+            
         while time.time() < end:
             next_tier = min(self.itopod_tier_counts, key=self.itopod_tier_counts.get)
             print(f"going to itopod tier {next_tier}")
@@ -1243,10 +1276,13 @@ class Features(Navigation, Inputs):
             # set end to 0 in case it's higher than start
             self.click(*coords.ITOPOD_ENTER)
             time.sleep(userset.LONG_SLEEP)
+            self.itopod_tier_counts[next_tier] = self.get_itopod_ap_kills() #Update each floor in case we got the wrong value
             kc = self.itopod_tier_counts[next_tier]
             while kc > 0:
                 if self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
-                    self.click(*coords.ABILITY_REGULAR_ATTACK)
+                    while self.check_pixel_color(*coords.IS_ENEMY_ALIVE):
+                        self.click(*coords.ABILITY_REGULAR_ATTACK)
+                        time.sleep(0.7)
 
                     self.itopod_kills += 1
                     kc -= 1
