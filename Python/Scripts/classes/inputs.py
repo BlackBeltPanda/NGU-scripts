@@ -2,7 +2,8 @@
 from classes.window import Window as window
 from ctypes import windll
 from PIL import Image as image
-from PIL import ImageFilter, ImageEnhance
+from PIL import ImageFilter, ImageEnhance, ImageGrab
+import numpy as np
 import cv2
 import datetime
 import usersettings as userset
@@ -20,8 +21,11 @@ import win32ui
 
 class Inputs():
     """This class handles inputs."""
+    
 
     def click(self, x, y, button="left", fast=False):
+        #path = r"C:\AutoIt3\AutoItX\AutoItX3.dll"
+        #autoit = windll.LoadLibrary(path)
         """Click at pixel xy."""
         # MOUSEMOVE event is required for game to register clicks correctly
         #win32gui.PostMessage(window.id, wcon.WM_MOUSEHOVER, 0, lParam)
@@ -31,6 +35,14 @@ class Inputs():
         win32gui.ShowWindow(window.id, 5)
         win32gui.SetForegroundWindow(window.id)
         if (button == "left"):
+            #hwnd = autoit.AU3_WinGetHandle("NGU Idle", "")
+            #print(f"Handle is: ", hwnd)
+            #lParam = win32api.MAKELONG(x, y)
+            #win32api.PostMessage(hwnd, wcon.WM_LBUTTONDOWN, wcon.MK_LBUTTON, lParam)
+            #time.sleep(0.15)
+            #win32api.PostMessage(hwnd, wcon.WM_LBUTTONUP, wcon.MK_LBUTTON, lParam)
+            #autoit.AU3_ControlClick(hwnd, "", "")
+            #autoit.AU3_ControlClick("NGU Idle", "", "", "left", 1, x, y)
             pyautogui.click(*win32gui.ClientToScreen(window.id, (x, y)))
         
         else:
@@ -172,14 +184,32 @@ class Inputs():
         bmp = bmp.crop((x_start + 8, y_start + 8, x_end + 8, y_end + 8))
         *_, right, lower = bmp.getbbox()
         bmp = bmp.resize((right*4, lower*4), image.BICUBIC)  # Resize image
+        contrast = ImageEnhance.Contrast(bmp)
         enhancer = ImageEnhance.Sharpness(bmp)
+        bmp = contrast.enhance(2)
         bmp = enhancer.enhance(0)
+        bmp = bmp.filter(ImageFilter.EDGE_ENHANCE)
         bmp = bmp.filter(ImageFilter.SHARPEN)  # Sharpen image for better OCR
 
         if debug:
             bmp.save("debug_ocr.png")
         s = pytesseract.image_to_string(bmp, config='--psm 4')
         return s
+        
+    def ocrItopod(self, x_start, y_start, x_end, y_end):
+        position = win32gui.GetWindowRect(window.id)
+        screenshot = ImageGrab.grab(position)
+        screenshot = np.array(screenshot)
+        screenshot = screenshot[y_start:y_end, x_start:x_end]
+        screenshot = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
+        width = int(screenshot.shape[1] * 4)
+        height = int(screenshot.shape[0] * 4)
+        dim = (width, height)
+        screenshot = cv2.resize(screenshot, dim, interpolation = cv2.INTER_CUBIC)
+        _, img_binarized = cv2.threshold(screenshot, 150, 255, cv2.THRESH_BINARY)
+        img = image.fromarray(img_binarized)
+        text = pytesseract.image_to_string(img, config='--psm 4 outputbase digits')
+        return text
 
     def get_pixel_color(self, x, y, debug=False):
         """Get the color of selected pixel in HEX."""
