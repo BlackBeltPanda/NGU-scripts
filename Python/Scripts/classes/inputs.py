@@ -177,7 +177,7 @@ class Inputs():
         s = pytesseract.image_to_string(bmp, config='--psm 4')
         return s
         
-    def ocrItopod(self, x_start, y_start, x_end, y_end):
+    def ocrExp(self, x_start, y_start, x_end, y_end, numbers_only=False):
         position = win32gui.GetWindowRect(window.id)
         screenshot = ImageGrab.grab(position, False, True)
         screenshot = np.array(screenshot)
@@ -189,7 +189,10 @@ class Inputs():
         screenshot = cv2.resize(screenshot, dim, interpolation = cv2.INTER_CUBIC)
         _, img_binarized = cv2.threshold(screenshot, 150, 255, cv2.THRESH_BINARY)
         img = image.fromarray(img_binarized)
-        text = pytesseract.image_to_string(img, config='--psm 4 outputbase digits')
+        params = '--psm 4'
+        if numbers_only:
+            params += ' outputbase digits'
+        text = pytesseract.image_to_string(img, config=params)
         return text
 
     def get_pixel_color(self, x, y, debug=False):
