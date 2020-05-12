@@ -1236,22 +1236,19 @@ class Features(Navigation, Inputs):
         self.menu("adventure")
         self.click(625, 500)  # click somewhere to move tooltip
         
-        self.click(*coords.ITOPOD)
-        self.click(*coords.ITOPOD_AUTO)
-        max = self.ocrItopod(*coords.OCR_ITOPOD_END_FLOOR)
-        print (f"Max optimal floor: '{max}'")
-        try:
-            max = int(max)
-        except ValueError:
-            print(f"Couldn't convert '{max}' to int")
-        self.click(*coords.ITOPOD_START)
-        self.send_string(0)
-        self.click(*coords.ITOPOD_ENTER)
-        time.sleep(0.7)
-        
         # check if we're already in ITOPOD, otherwise enter
         if not self.itopod_tier_counts:
             for tier, floor in self.itopod_tier_map.items():
+                if (floor == 0):
+                    self.click(*coords.ITOPOD)
+                    self.click(*coords.ITOPOD_AUTO)
+                    max = self.ocrItopod(*coords.OCR_ITOPOD_END_FLOOR)
+                    print (f"Max optimal floor: '{max}'")
+                    try:
+                        max = int(max)
+                    except ValueError:
+                        print(f"Couldn't convert '{max}' to int")
+                    self.click(*coords.ITOPOD_CLOSE)
                 if (floor > max):
                     break
                 self.click(*coords.ITOPOD)
