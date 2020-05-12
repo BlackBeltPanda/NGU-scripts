@@ -1213,7 +1213,7 @@ class Features(Navigation, Inputs):
     
     def get_itopod_ap_kills(self):
         self.click(*coords.ADVENTURE_TOOLTIP)
-        count = self.ocrItopod(*coords.OCR_AP_KILL_COUNT).split(".")[0]
+        count = self.ocrExp(*coords.OCR_AP_KILL_COUNT, numbers_only=True).split(".")[0]
         try:
             count = int(count)
         except ValueError:
@@ -1242,7 +1242,7 @@ class Features(Navigation, Inputs):
                 if (floor == 0):
                     self.click(*coords.ITOPOD)
                     self.click(*coords.ITOPOD_AUTO)
-                    max = self.ocrItopod(*coords.OCR_ITOPOD_END_FLOOR)
+                    max = self.ocrExp(*coords.OCR_ITOPOD_END_FLOOR, numbers_only=True)
                     print (f"Max optimal floor: '{max}'")
                     try:
                         max = int(max)
