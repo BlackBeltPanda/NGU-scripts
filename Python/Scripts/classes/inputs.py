@@ -179,7 +179,7 @@ class Inputs():
         
     def ocrItopod(self, x_start, y_start, x_end, y_end):
         position = win32gui.GetWindowRect(window.id)
-        screenshot = ImageGrab.grab(position)
+        screenshot = ImageGrab.grab(position, False, True)
         screenshot = np.array(screenshot)
         screenshot = screenshot[y_start:y_end, x_start:x_end]
         screenshot = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
